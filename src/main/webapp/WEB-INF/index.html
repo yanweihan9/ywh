@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script type="text/javascript">
+        var websocket = null;
+        function connection() {
+            var username = document.getElementById("name").value;
+            if ('WebSocket' in window) {
+                websocket = new WebSocket("ws://" + document.location.host + "/websocket/" + username);
+            } else {
+                alert("不支持wensocket")
+            }
+            websocket.onopen = function () {
+                document.getElementById("message").innerHTML = "建立链接了";
+            }
+            websocket.onmessage = function (event) {
+                var data = event.data;
+                document.getElementById("message").innerHTML = data;
+            }
+            websocket.onerror = function () {
+                document.getElementById("message").innerHTML = "出现异常";
+            }
+            websocket.onclose = function () {
+                document.getElementById("message").innerHTML = "链接关闭了";
+            }
+            window.onbeforeunload = function () {
+                if (websocket != null) {
+                    websocket.close()
+                }
+            }
+        }
+
+        function sendMessage() {
+            //获取发送给谁
+            var toUser = document.getElementById("toUser").value;
+            //获取发送内容
+            var toMessage = document.getElementById("toMessage").value;
+            if (websocket != null) {
+                var message = '{"toUser":"' + toUser + '","toMessage":"' + toMessage + '"}';
+                websocket.send(message);
+            }
+        }
+    </script>
+</head>
+<body>
+<input type="text" id="name" name="name">
+<button onclick="connection()">链接</button><br>
+接收者名字：<input type="text" name="toUser"><br>
+内容：<input type="text" name="toMessage">
+<button onclick="sendMessage()">发送</button>
+</body>
+</html>
